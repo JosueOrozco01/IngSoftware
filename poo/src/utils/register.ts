@@ -4,7 +4,7 @@ import Publication from "./publication";
 export default class Register {
     constructor() {}
 
-    public async Base(publication: Publication) {
+    public async Base(publication: Publication): Promise<void> {
         try {
             const connectionString = "postgresql://postgres.mstsxyeekgoyzfrlqbic:Fercho:3@aws-1-us-east-2.pooler.supabase.com:6543/postgres";
             const sql = postgres(connectionString, { ssl: "require" });

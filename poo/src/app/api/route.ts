@@ -9,37 +9,56 @@ interface Post {
 
 export async function POST(request: NextRequest) {
   try {
-    let data: Partial<Post>;
-    try {
-      data = await request.json();
-    } catch {
-      return NextResponse.json({ error: "Body vacío o malformado" }, { status: 400 });
-    }
+    const data = await request.json();
 
-    if (!data.title) {
-      return NextResponse.json({ error: "Falta el campo 'title'" }, { status: 400 });
-    }
+    validateTitle(data.title);
+    validateDescription(data.description);
+    validateAutor(data.autor);
 
-    if (!data.description) {
-      return NextResponse.json({ error: "Falta el campo 'description'" }, { status: 400 });
-    }
-
-    if (!data.autor) {
-      return NextResponse.json({ error: "Falta el campo 'autor'" }, { status: 400 });
-    }
-
-    const connecting = "postgresql://postgres.mstsxyeekgoyzfrlqbic:Fercho:3@aws-1-us-east-2.pooler.supabase.com:6543/postgres"
-    const sql = postgres(connecting, { ssl: "require" });
-    const result = await sql`INSERT INTO "Post" (title, description, autor) VALUES (${data.title}, ${data.description}, ${data.autor})RETURNING *;`;
+    const newPost = await insertPost(data.title, data.description, data.autor);
 
     return NextResponse.json({
-      message: "Post creado con éxito y se creo la basde de datos con exito",
-      data: result[0],
+      message: "Post creado con éxito",
+      data: newPost,
     });
 
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message.includes("no puede estar")) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
     console.error("Error al crear el post", error);
     return NextResponse.json({ error: "Error del servidor" }, { status: 500 });
   }
 }
 
+function validateTitle(title: string | undefined) {
+  if (!title || title.trim().length === 0) {
+    throw new Error("El título no puede estar vacío");
+  }
+}
+
+function validateDescription(description: string | undefined) {
+  if (!description || description.trim().length === 0) {
+    throw new Error("La descripción no puede estar vacía");
+  }
+}
+
+function validateAutor(autor: string | undefined) {
+  if (!autor || autor.trim().length === 0) {
+    throw new Error("El autor no puede estar vacío");
+  }
+}
+
+async function insertPost(title: string, description: string, autor: string): Promise<Post> {
+  const connectionString = "postgresql://postgres.mstsxyeekgoyzfrlqbic:Fercho:3@aws-1-us-east-2.pooler.supabase.com:6543/postgres";
+  const sql = postgres(connectionString, { ssl: "require" });
+
+  const result = await sql<Post[]>`
+    INSERT INTO "Post" (title, description, autor)
+    VALUES (${title}, ${description}, ${autor})
+    RETURNING *;
+  `;
+
+  return result[0];
+}

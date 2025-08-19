@@ -2,6 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import Publication from "@/utils/publication";
 import PostgresPublicationRepository from "@/utils/postgres-publication-repository";
 
+
+export async function GET() {
+    try {
+        const repository = new PostgresPublicationRepository();
+        const publications = await repository.getAll();
+        return NextResponse.json(publications);
+    } catch (error: any) {
+        console.error("Error al obtener los posts", error);
+        return NextResponse.json({ error: "Error del servidor" }, { status: 500 });
+    }
+}
+
 export async function POST(request: NextRequest) {
     try {
         const data = await request.json();

@@ -21,4 +21,14 @@ export default class PostgresPublicationRepository implements IPublicationReposi
             throw new Error("Error al guardar en la BD");
         }
     }
+
+    public async getAll(): Promise<Publication[]> {
+        try {
+            const rows = await this.sql`SELECT title, description, autor FROM "Post"`;
+            return rows.map((row: any) => new Publication(row.title, row.description, row.autor));
+        } catch (error: any) {
+            console.error("Error al obtener publicaciones de la BD:", error);
+            throw new Error("Error al obtener publicaciones de la BD");
+        }
+    }
 }

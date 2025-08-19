@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import Publication from "@/utils/publication";
-import Register from "@/utils/register";
+import PostgresPublicationRepository from "@/utils/postgres-publication-repository";
 
 export async function POST(request: NextRequest) {
     try {
@@ -8,8 +8,8 @@ export async function POST(request: NextRequest) {
 
         const publication = new Publication(data.title, data.description, data.autor);
 
-        const register = new Register();
-        await register.Base(publication);
+        const repository = new PostgresPublicationRepository();
+        await repository.save(publication);
 
         return NextResponse.json({
             message: "Post creado correctamente"

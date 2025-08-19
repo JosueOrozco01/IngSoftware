@@ -30,7 +30,8 @@ export async function POST(request: NextRequest) {
 
     const connecting = "postgresql://postgres.mstsxyeekgoyzfrlqbic:Fercho:3@aws-1-us-east-2.pooler.supabase.com:6543/postgres"
     const sql = postgres(connecting, { ssl: "require" });
-    
+    const result = await sql`INSERT INTO "Post" (title, description, autor) VALUES (${data.title}, ${data.description}, ${data.autor})RETURNING *;`;
+
     return NextResponse.json({
       message: "Post creado con éxito y se creo la basde de datos con exito",
       data: result[0],

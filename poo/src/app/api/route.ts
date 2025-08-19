@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import postgres from "postgres";
 
 interface Post {
-  id: number;
   title: string;
   description: string;
   autor: string;
@@ -16,16 +16,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Body vacío o malformado" }, { status: 400 });
     }
 
-    if (data.id === undefined) {
-      return NextResponse.json({ error: "Falta el campo 'id'" }, { status: 400 });
-    }
-    if (typeof data.id !== "number") {
-      return NextResponse.json({ error: "'id' debe ser un número" }, { status: 400 });
-    }
-    if (data.id <= 0) {
-      return NextResponse.json({ error: "'id' debe ser mayor a 0" }, { status: 400 });
-    }
-
     if (!data.title) {
       return NextResponse.json({ error: "Falta el campo 'title'" }, { status: 400 });
     }
@@ -38,9 +28,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Falta el campo 'autor'" }, { status: 400 });
     }
 
+    const connecting = "postgresql://postgres.mstsxyeekgoyzfrlqbic:Fercho:3@aws-1-us-east-2.pooler.supabase.com:6543/postgres"
+    const sql = postgres(connecting, { ssl: "require" });
+    
     return NextResponse.json({
-      message: "Post creado con éxito",
-      data
+      message: "Post creado con éxito y se creo la basde de datos con exito",
+      data: result[0],
     });
 
   } catch (error) {
@@ -48,3 +41,4 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Error del servidor" }, { status: 500 });
   }
 }
+

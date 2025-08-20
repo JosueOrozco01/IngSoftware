@@ -31,4 +31,28 @@ export default class PostgresPublicationRepository implements IPublicationReposi
             throw new Error("Error al obtener publicaciones de la BD");
         }
     }
+
+    public async update(id: number, publication: Publication): Promise<void> {
+        try {
+            await this.sql`
+                UPDATE "Post"
+                SET title = ${publication.title}, description = ${publication.description}, autor = ${publication.autor}
+                WHERE id = ${id};
+            `;
+        } catch (error: any) {
+            console.error("Error al actualizar la publicación en la BD:", error);
+            throw new Error("Error al actualizar la publicación en la BD");
+        }
+    }
+
+    public async delete(id: number): Promise<void> {
+        try {
+            await this.sql`
+                DELETE FROM "Post" WHERE id = ${id};
+            `;
+        } catch (error: any) {
+            console.error("Error al eliminar la publicación en la BD:", error);
+            throw new Error("Error al eliminar la publicación en la BD");
+        }
+    }
 }
